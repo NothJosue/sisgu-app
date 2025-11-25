@@ -12,6 +12,7 @@ class Estudiante extends Model
     protected $table = 'estudiantes';
     
     protected $fillable = [
+        'usuario_id',
         'carrera_id',
         'codigo_estudiante', 
         'nombres', 
@@ -20,6 +21,11 @@ class Estudiante extends Model
         'estado', 
         'codigo_programa'
     ];
+
+    public function usuario()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function carrera()
     {

@@ -19,15 +19,21 @@
         </div>
         <div class="card">
             <div class="card-body login-card-body">
-                <form method="post">
+                <form action="{{ route('login.post') }}" method="post">
+
+                    @csrf
+
                     <div class="input-group mb-3">
-                        <input type="email" class="form-control" name="email" placeholder="Email" required />
+                        <input type="text" class="form-control" name="username" placeholder="Código de Estudiante"
+                            required />
                         <div class="input-group-text"><span class="bi bi-envelope"></span></div>
                     </div>
+
                     <div class="input-group mb-3">
-                        <input type="password" class="form-control" name="password" placeholder="Password" required />
+                        <input type="password" class="form-control" name="password" placeholder="Contraseña" required />
                         <div class="input-group-text"><span class="bi bi-lock-fill"></span></div>
                     </div>
+
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary">Ingresar</button>
                     </div>
