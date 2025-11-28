@@ -2,28 +2,33 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Carrera extends Model
 {
     use HasFactory;
+
     protected $table = 'carreras';
-    public $timestamps = false;
-    protected $fillable = ['nombre', 'codigo_carrera', 'escuela_id'];
+
+    protected $fillable = [
+        'id_escuela',
+        'nombre',
+        'codigo_interno', // ⭐ nuevo campo
+    ];
 
     public function escuela()
     {
-        return $this->belongsTo(Escuela::class);
+        return $this->belongsTo(Escuela::class, 'id_escuela');
     }
 
     public function especialidades()
     {
-        return $this->hasMany(Especialidad::class);
+        return $this->hasMany(Especialidad::class, 'id_carrera');
     }
 
     public function estudiantes()
     {
-        return $this->hasMany(Estudiante::class);
+        return $this->hasMany(Estudiante::class, 'id_carrera');
     }
 }

@@ -2,26 +2,28 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Escuela extends Model
 {
-
     use HasFactory;
+
     protected $table = 'escuelas';
-    public $timestamps = false;
 
-    protected $fillable = ['nombre', 'codigo_interno', 'facultad_id'];
-
+    protected $fillable = [
+        'id_facultad',
+        'nombre',
+        'codigo_interno',
+    ];
 
     public function facultad()
     {
-        return $this->belongsTo(Facultad::class);
+        return $this->belongsTo(Facultad::class, 'id_facultad');
     }
 
     public function carreras()
     {
-        return $this->hasMany(Carrera::class);
+        return $this->hasMany(Carrera::class, 'id_escuela');
     }
 }

@@ -2,19 +2,23 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Facultad extends Model
 {
     use HasFactory;
-    protected $table = 'facultades';
-    public $timestamps = false;
 
-    protected $fillable = ['nombre', 'codigo_interno'];
+    protected $table = 'facultades';
+
+    protected $fillable = [
+        'nombre',
+        'codigo_interno',
+        'direccion',
+    ];
 
     public function escuelas()
     {
-        return $this->hasMany(Escuela::class);
+        return $this->hasMany(Escuela::class, 'id_facultad');
     }
 }

@@ -2,30 +2,30 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MallaCurricular extends Model
 {
     use HasFactory;
-    
-    protected $table = 'malla_curricular'; 
+
+    protected $table = 'malla_curricular';
 
     protected $fillable = [
-        'especialidad_id',
-        'asignatura_id',
+        'id_asignatura',
+        'id_carrera',
         'semestre',
         'asig_oblig',
-        'estado'
+        'estado',
     ];
-
-    public function especialidad()
-    {
-        return $this->belongsTo(Especialidad::class,'especialidad_id');
-    }
 
     public function asignatura()
     {
-        return $this->belongsTo(Asignatura::class);
+        return $this->belongsTo(Asignatura::class, 'id_asignatura');
+    }
+
+    public function carrera()
+    {
+        return $this->belongsTo(Carrera::class, 'id_carrera');
     }
 }

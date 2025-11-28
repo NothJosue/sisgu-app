@@ -2,30 +2,33 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Profesor extends Model
 {
     use HasFactory;
 
     protected $table = 'profesores';
-    public $timestamps = false;
 
     protected $fillable = [
-        'usuario_id',
+        'id_usuario',
         'nombres',
         'apellidos',
-        'dni',
+        'DNI',
         'correo_personal',
         'correo_institucional',
         'telefono',
         'estado'
     ];
 
-    // Relación: El profesor "es" un Usuario del sistema
     public function usuario()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'id_usuario');
+    }
+
+    public function detalles()
+    {
+        return $this->hasOne(DetallesProfesor::class, 'id_profesor');
     }
 }
