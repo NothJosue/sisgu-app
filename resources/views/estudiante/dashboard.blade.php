@@ -1,4 +1,4 @@
-@extends('layout.admin') {{-- Asumiendo que usas admin.blade.php como base, o crea un layout master --}}
+@extends('layout.admin')
 
 @section('content')
 <div class="container-fluid">
@@ -8,9 +8,13 @@
         </div>
         <div class="card-body">
             <h1>Hola, {{ $estudiante->nombres }} {{ $estudiante->apellidos }}</h1>
-            <p>Tu código de estudiante es: <strong>{{ $estudiante->codigo_estudiante }}</strong></p>
-            <p>Tu carrera es: <strong>{{ $estudiante->carrera->nombre ?? 'Sin carrera asignada' }}</strong></p>
-            
+            <p>Tu código de estudiante es: 
+                <strong>{{ $estudiante->codigo_universitario }}</strong>
+            </p>
+            <p>Tu carrera es: 
+                <strong>{{ $estudiante->carrera->nombre ?? 'Sin carrera asignada' }}</strong>
+            </p>
+
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="btn btn-danger">Cerrar Sesión</button>

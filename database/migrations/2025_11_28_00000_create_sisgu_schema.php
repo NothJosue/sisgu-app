@@ -179,6 +179,7 @@ return new class extends Migration
             $table->enum('modalidad', ['Presencial', 'Virtual'])->nullable();
             $table->timestamps();
 
+            // Usamos un nombre corto personalizado para evitar el error 1059
             $table->unique(['asignatura_id', 'periodo_id', 'nombre_seccion'], 'uniq_asig_per_nom');
         });
 
@@ -229,11 +230,47 @@ return new class extends Migration
         });
 
         // ==========================================
-        // 7. MATRICULA & 8. DETALLE MATRICULA
+        // 7. MATRICULA (CABECERA - ESTRUCTURA NUEVA)
         // ==========================================
-        // IMPORTANTE: Secciones eliminadas para evitar conflicto con la nueva migración
-        // 2025_11_29_154522_create_matriculas_table.php
-        
+        Schema::create('matriculas', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('estudiante_id')->constrained('estudiantes')->cascadeOnDelete();
+            $table->foreignId('periodo_id')->constrained('periodo_academicos')->restrictOnDelete();
+            
+            $table->foreignId('pago_id')
+                ->nullable()
+                ->constrained('pagos')
+                ->nullOnDelete();
+
+            $table->string('codigo_matricula', 30)->unique()->nullable(); // Ej: 20251-20250050
+            $table->integer('id_tramite')->nullable(); 
+            $table->dateTime('fecha_matricula');
+            $table->enum('estado', ['prematrícula', 'matriculado', 'observado', 'anulado'])->default('matriculado');
+            
+            $table->timestamps();
+
+            // Regla: Un estudiante solo puede tener UNA ficha de matrícula por periodo
+            $table->unique(['estudiante_id', 'periodo_id']);
+        });
+
+        // ==========================================
+        // 8. DETALLE MATRICULA (LOS CURSOS INSCRITOS)
+        // ==========================================
+        Schema::create('detalle_matriculas', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('matricula_id')->constrained('matriculas')->cascadeOnDelete();
+            $table->foreignId('asignatura_seccion_id')->constrained('asignatura_seccions')->restrictOnDelete();
+            
+            $table->decimal('nota_final', 4, 2)->nullable();
+            $table->enum('estado_curso', ['en_curso', 'aprobado', 'desaprobado', 'retirado', 'sin_nota'])->default('en_curso');
+            $table->integer('vez_cursado')->default(1); // 1=Regular, 2=Segunda, 3=Tercera
+            
+            $table->timestamps();
+
+            // Regla: No duplicar el curso en la misma ficha. Usamos nombre corto.
+            $table->unique(['matricula_id', 'asignatura_seccion_id'], 'uniq_mat_det_sec');
+        });
+
         // ==========================================
         // 9. TABLAS DE SISTEMA
         // ==========================================
@@ -256,8 +293,8 @@ return new class extends Migration
     public function down(): void
     {
         // Borramos en orden inverso para respetar FKs
-        // Schema::dropIfExists('detalle_matriculas'); // Eliminado
-        // Schema::dropIfExists('matriculas');         // Eliminado
+        Schema::dropIfExists('detalle_matriculas');
+        Schema::dropIfExists('matriculas');
         Schema::dropIfExists('prerequisitos');
         Schema::dropIfExists('pagos');
         Schema::dropIfExists('soportes');

@@ -26,7 +26,7 @@
                 </div>
                 <div>
                     <div class="text-gray-500 text-sm font-medium">Estudiantes</div>
-                    <div class="text-2xl font-bold text-gray-800">1,240</div>
+                    <div class="text-2xl font-bold text-gray-800">213</div>
                 </div>
             </div>
             
@@ -37,7 +37,7 @@
                 </div>
                 <div>
                     <div class="text-gray-500 text-sm font-medium">Matrículas Hoy</div>
-                    <div class="text-2xl font-bold text-gray-800">45</div>
+                    <div class="text-2xl font-bold text-gray-800">43</div>
                 </div>
             </div>
 
@@ -48,7 +48,7 @@
                 </div>
                 <div>
                     <div class="text-gray-500 text-sm font-medium">Docentes Activos</div>
-                    <div class="text-2xl font-bold text-gray-800">86</div>
+                    <div class="text-2xl font-bold text-gray-800">13</div>
                 </div>
             </div>
 
@@ -59,7 +59,7 @@
                 </div>
                 <div>
                     <div class="text-gray-500 text-sm font-medium">Observados</div>
-                    <div class="text-2xl font-bold text-gray-800">12</div>
+                    <div class="text-2xl font-bold text-gray-800">15</div>
                 </div>
             </div>
         </div>

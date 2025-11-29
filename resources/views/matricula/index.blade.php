@@ -118,29 +118,53 @@
                         <!-- Ejemplo de Fila (Iterar con foreach) -->
                         @foreach($matriculas as $matricula)
                         <tr class="bg-white hover:bg-orange-50/30 transition-colors">
-                            <td class="px-6 py-4 font-medium text-gray-900">{{ $matricula->codigo_matricula }}</td>
-                            <td class="px-6 py-4">
-                                <div class="font-bold text-gray-800">{{ $matricula->estudiante->apellido ?? 'Desconocido' }}, {{ $matricula->estudiante->nombre ?? '' }}</div>
-                                <div class="text-xs text-gray-500">{{ $matricula->estudiante->codigo ?? '---' }}</div>
+                            <td class="px-6 py-4 font-medium text-gray-900">
+                                {{ $matricula->codigo_matricula }}
                             </td>
-                            <td class="px-6 py-4">Ing. Informática</td> <!-- Dato a sacar de relación -->
-                            <td class="px-6 py-4">{{ \Carbon\Carbon::parse($matricula->fecha_matricula)->format('d/m/Y') }}</td>
-                            <td class="px-6 py-4 font-mono text-gray-600">{{ $matricula->id_tramite }}</td>
+                            <td class="px-6 py-4">
+                                <div class="font-bold text-gray-800">
+                                    {{ $matricula->estudiante->apellidos ?? 'Desconocido' }}, 
+                                    {{ $matricula->estudiante->nombres ?? '' }}
+                                </div>
+                                <div class="text-xs text-gray-500">
+                                    {{ $matricula->estudiante->codigo_universitario ?? '---' }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                {{ $matricula->estudiante->carrera->escuela->nombre ?? '---' }}
+                            </td>
+                            <td class="px-6 py-4">
+                                {{ \Carbon\Carbon::parse($matricula->fecha_matricula)->format('d/m/Y') }}
+                            </td>
+                            <td class="px-6 py-4 font-mono text-gray-600">
+                                {{ $matricula->id_tramite }}
+                            </td>
                             <td class="px-6 py-4 text-center">
-                                @if($matricula->estado == 'Matriculado')
-                                    <span class="bg-green-100 text-green-800 text-xs font-bold px-2.5 py-0.5 rounded border border-green-200">Matriculado</span>
+                                @if($matricula->estado == 'matriculado')
+                                    <span class="bg-green-100 text-green-800 text-xs font-bold px-2.5 py-0.5 rounded border border-green-200">
+                                        Matriculado
+                                    </span>
                                 @elseif($matricula->estado == 'Pendiente')
-                                    <span class="bg-yellow-100 text-yellow-800 text-xs font-bold px-2.5 py-0.5 rounded border border-yellow-200">Pendiente</span>
+                                    <span class="bg-yellow-100 text-yellow-800 text-xs font-bold px-2.5 py-0.5 rounded border border-yellow-200">
+                                        Pendiente
+                                    </span>
                                 @else
-                                    <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded border border-red-200">{{ $matricula->estado }}</span>
+                                    <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded border border-red-200">
+                                        {{ $matricula->estado }}
+                                    </span>
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-right">
-                                <a href="#" class="text-blue-600 hover:text-blue-900 mx-1"><i class="bi bi-eye-fill"></i></a>
-                                <a href="#" class="text-gray-600 hover:text-gray-900 mx-1"><i class="bi bi-pencil-square"></i></a>
+                                <a href="#" class="text-blue-600 hover:text-blue-900 mx-1">
+                                    <i class="bi bi-eye-fill"></i>
+                                </a>
+                                <a href="#" class="text-gray-600 hover:text-gray-900 mx-1">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
                             </td>
                         </tr>
                         @endforeach
+
                         <!-- Fin Ejemplo -->
                     </tbody>
                 </table>
