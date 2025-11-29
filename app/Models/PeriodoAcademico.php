@@ -9,7 +9,7 @@ class PeriodoAcademico extends Model
 {
     use HasFactory;
 
-    protected $table = 'periodo_academico';
+    protected $table = 'periodo_academicos';
 
     protected $fillable = [
         'codigo',

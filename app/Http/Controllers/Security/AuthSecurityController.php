@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
 use Carbon\Carbon;
 
 class AuthSecurityController extends Controller
@@ -19,55 +18,67 @@ class AuthSecurityController extends Controller
         ]);
 
         if (!Auth::attempt($credentials)) {
-            return response()->json([
-                'message' => 'Credenciales incorrectas',
-            ], 401);
+            return response()->json(['message' => 'Credenciales incorrectas'], 401);
         }
 
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         if ($user->estado !== 'Activo') {
-            return response()->json([
-                'message' => 'Usuario inactivo o bloqueado',
-            ], 403);
+            return response()->json(['message' => 'Usuario inactivo o bloqueado'], 403);
         }
 
-        $now      = Carbon::now();
-        $expires  = $now->copy()->addHour(); // 1 hora
-        $payload  = [
+        // Configuración de Tiempos
+        $now = Carbon::now();
+        $expirationTime = $now->copy()->addHours(2); // Token de 2 horas
+        $seconds = $expirationTime->diffInSeconds($now); // Cálculo absoluto
+
+        $payload = [
             'iss' => config('app.url'),
             'iat' => $now->timestamp,
-            'exp' => $expires->timestamp,
+            'exp' => $expirationTime->timestamp,
             'sub' => $user->id,
             'rol' => $user->rol,
         ];
 
-        $token = JWT::encode($payload, env('JWT_SECRET'), 'HS256');
+        $key = env('JWT_SECRET');
+        if(!$key) {
+             return response()->json(['message' => 'Error de configuración del servidor (Falta JWT_SECRET)'], 500);
+        }
+
+        $token = JWT::encode($payload, $key, 'HS256');
 
         return response()->json([
             'access_token' => $token,
             'token_type'   => 'Bearer',
-            'expires_in'   => $expires->diffInSeconds($now),
+            'expires_in'   => $seconds, // Ahora será positivo (ej: 7200)
             'user'         => [
                 'id'       => $user->id,
                 'username' => $user->username,
                 'rol'      => $user->rol,
+                'estado'   => $user->estado
             ],
         ]);
     }
 
     public function me(Request $request)
     {
-        return response()->json([
-            'user' => Auth::user(),
-        ]);
+        // Devuelve el usuario con sus relaciones principales si es estudiante
+        $user = Auth::user();
+        
+        if ($user->rol === 'Estudiante') {
+             // Cargamos datos del perfil de estudiante si existen
+             $perfil = \App\Models\Estudiante::where('usuario_id', $user->id)
+                        ->with('carrera.escuela.facultad')
+                        ->first();
+             $user->perfil = $perfil;
+        }
+
+        return response()->json(['user' => $user]);
     }
 
     public function logout(Request $request)
     {
-        // Con JWT “puro” no hay invalidación en servidor
-        return response()->json([
-            'message' => 'Logout lógico realizado. (Solo borra el token en el cliente).',
-        ]);
+        return response()->json(['message' => 'Logout exitoso (Cliente debe borrar token)']);
     }
 }

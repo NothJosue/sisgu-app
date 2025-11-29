@@ -2,39 +2,41 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Estudiante extends Model
 {
     use HasFactory;
 
-    protected $table = 'estudiante';
+    protected $table = 'estudiantes';
 
+    // Usamos los nombres reales de la BD (snake_case)
     protected $fillable = [
-        'id_usuario',
-        'id_carrera',
+        'usuario_id',
+        'carrera_id',
         'codigo_universitario',
         'anio_ingreso',
         'correo_institucional',
         'nombres',
         'apellidos',
-        'DNI',
+        'dni',
         'estado'
     ];
 
     public function usuario()
     {
-        return $this->belongsTo(User::class, 'id_usuario');
+        return $this->belongsTo(User::class, 'usuario_id');
     }
 
     public function carrera()
     {
-        return $this->belongsTo(Carrera::class, 'id_carrera');
+        return $this->belongsTo(Carrera::class, 'carrera_id');
     }
 
-    public function detalles()
+    public function detalle()
     {
-        return $this->hasOne(DetallesEstudiante::class, 'id_estudiante');
+        // CORRECCIÓN: La llave foránea en BD es 'estudiante_id'
+        return $this->hasOne(DetallesEstudiante::class, 'estudiante_id');
     }
 }

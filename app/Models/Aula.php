@@ -28,6 +28,6 @@ class Aula extends Model
 
     public function horarios()
     {
-        return $this->hasMany(Horario::class, 'aula_id');
+        return $this->hasMany(Horarios::class, 'aula_id');
     }
 }

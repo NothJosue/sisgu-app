@@ -9,41 +9,39 @@ class AsignaturaSeccion extends Model
 {
     use HasFactory;
 
-    protected $table = 'asignatura_seccion';
-
-    protected $primaryKey = 'ID_Asignatura_Seccion';
+    protected $table = 'asignatura_seccions';
 
     protected $fillable = [
-        'ID_Asignatura',
-        'ID_Profesor',
-        'ID_Periodo',
-        'Nombre_Seccion',
-        'Cupos',
-        'Modalidad',
+        'asignatura_id',  
+        'profesor_id',    
+        'periodo_id',     
+        'nombre_seccion', 
+        'cupos',          
+        'modalidad',     
     ];
 
     public function asignatura()
     {
-        return $this->belongsTo(Asignatura::class, 'ID_Asignatura');
+        return $this->belongsTo(Asignatura::class, 'asignatura_id');
     }
 
     public function profesor()
     {
-        return $this->belongsTo(Profesor::class, 'ID_Profesor');
+        return $this->belongsTo(Profesor::class, 'profesor_id');
     }
 
     public function periodo()
     {
-        return $this->belongsTo(PeriodoAcademico::class, 'ID_Periodo');
+        return $this->belongsTo(PeriodoAcademico::class, 'periodo_id');
     }
 
     public function horarios()
     {
-        return $this->hasMany(Horario::class, 'ID_Asignatura_Seccion');
+        return $this->hasMany(Horarios::class, 'asignatura_seccion_id');
     }
 
     public function matriculas()
     {
-        return $this->hasMany(Matricula::class, 'id_Asignatura_seccion');
+        return $this->hasMany(Matricula::class, 'asignatura_seccion_id');
     }
 }

@@ -8,7 +8,9 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // ==========================================
         // 1. JERARQUÍA INSTITUCIONAL
+        // ==========================================
         Schema::create('facultades', function (Blueprint $table) {
             $table->id();
             $table->string('nombre', 50)->unique();
@@ -29,13 +31,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('escuela_id')->constrained('escuelas');
             $table->string('nombre', 100)->unique();
-            $table->string('codigo_interno', 2); // 👈 nuevo campo (01, 02, 09, etc.)
+            $table->string('codigo_interno', 2);
             $table->timestamps();
-
-            // permite atomicidad de datos con el codigo por escuela
             $table->unique(['escuela_id', 'codigo_interno']);
         });
-
 
         Schema::create('especialidades', function (Blueprint $table) {
             $table->id();
@@ -46,7 +45,9 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        // ==========================================
         // 2. INFRAESTRUCTURA
+        // ==========================================
         Schema::create('edificios', function (Blueprint $table) {
             $table->id();
             $table->foreignId('facultad_id')->nullable()->constrained('facultades');
@@ -56,7 +57,7 @@ return new class extends Migration
         });
 
         Schema::create('aulas', function (Blueprint $table) {
-            $table->id(); // ID_Aula en el diseño lógico
+            $table->id();
             $table->foreignId('edificio_id')->constrained('edificios');
             $table->string('nombre_aula', 50);
             $table->string('codigo_aula', 50)->unique()->nullable();
@@ -67,7 +68,9 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        // ==========================================
         // 3. ACTORES Y SEGURIDAD
+        // ==========================================
         Schema::create('usuarios', function (Blueprint $table) {
             $table->id();
             $table->string('username', 50)->unique();
@@ -79,7 +82,7 @@ return new class extends Migration
         });
 
         Schema::create('profesores', function (Blueprint $table) {
-            $table->id(); // en tu script era id_profesor; si quieres mantenerlo: $table->id('id_profesor');
+            $table->id();
             $table->foreignId('usuario_id')->unique()->constrained('usuarios');
             $table->string('nombres', 50);
             $table->string('apellidos', 100);
@@ -126,10 +129,12 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        // ==========================================
         // 4. ACADÉMICO Y HORARIOS
+        // ==========================================
         Schema::create('periodo_academicos', function (Blueprint $table) {
             $table->id();
-            $table->string('codigo', 10)->nullable();
+            $table->string('codigo', 10)->nullable(); // Ej: 2025-1
             $table->date('fecha_inicio');
             $table->date('fecha_fin');
             $table->enum('turno', ['M', 'T', 'N'])->nullable();
@@ -141,7 +146,7 @@ return new class extends Migration
             $table->string('codigo_asignatura', 12)->unique()->nullable();
             $table->string('nombre', 30);
             $table->integer('creditos')->nullable();
-            $table->string('asig_prerequi', 8)->nullable(); // lo mantenemos por compatibilidad, pero usaremos tabla prerrequisitos
+            $table->string('asig_prerequi', 8)->nullable();
             $table->timestamps();
         });
 
@@ -153,21 +158,19 @@ return new class extends Migration
             $table->string('asig_oblig', 20)->nullable();
             $table->string('estado', 20)->nullable();
             $table->timestamps();
-
             $table->unique(['carrera_id', 'asignatura_id']);
         });
 
         Schema::create('bloques_horarios', function (Blueprint $table) {
-            $table->id(); // ID_Bloque
+            $table->id();
             $table->time('hora_inicio');
             $table->time('hora_fin');
             $table->timestamps();
-
             $table->unique(['hora_inicio', 'hora_fin']);
         });
 
         Schema::create('asignatura_seccions', function (Blueprint $table) {
-            $table->id(); // ID_Asignatura_Seccion
+            $table->id();
             $table->foreignId('asignatura_id')->constrained('asignaturas');
             $table->foreignId('profesor_id')->constrained('profesores');
             $table->foreignId('periodo_id')->constrained('periodo_academicos');
@@ -176,27 +179,27 @@ return new class extends Migration
             $table->enum('modalidad', ['Presencial', 'Virtual'])->nullable();
             $table->timestamps();
 
-            $table->unique(
-                ['asignatura_id', 'periodo_id', 'nombre_seccion'],
-                'uniq_asigsec_per_nombre'
-            );
+            // Usamos un nombre corto personalizado para evitar el error 1059
+            $table->unique(['asignatura_id', 'periodo_id', 'nombre_seccion'], 'uniq_asig_per_nom');
         });
 
         Schema::create('horarios', function (Blueprint $table) {
-            $table->id(); // id_horario
+            $table->id();
             $table->foreignId('asignatura_seccion_id')->constrained('asignatura_seccions')->cascadeOnDelete();
-            $table->integer('dia_id'); // ID_Dia (podrías luego hacer una tabla dias_semana si quieres)
+            $table->integer('dia_id'); // 1=Lunes...
             $table->foreignId('bloque_id')->constrained('bloques_horarios');
             $table->foreignId('aula_id')->constrained('aulas');
             $table->foreignId('periodo_id')->constrained('periodo_academicos');
             $table->enum('tipo_sesion', ['Teoría', 'Laboratorio', 'Practica'])->default('Teoría');
             $table->timestamps();
 
-            $table->unique(['aula_id', 'dia_id', 'bloque_id', 'periodo_id']);
-            $table->unique(['asignatura_seccion_id', 'dia_id', 'bloque_id']);
+            $table->unique(['aula_id', 'dia_id', 'bloque_id', 'periodo_id'], 'aula_ocupada_uid');
+            $table->unique(['asignatura_seccion_id', 'dia_id', 'bloque_id'], 'seccion_ocupada_uid');
         });
 
-        // 5. TRANSACCIONAL – SOPORTE / PAGO PRIMERO POR FK
+        // ==========================================
+        // 5. TRANSACCIONAL - PAGOS
+        // ==========================================
         Schema::create('soportes', function (Blueprint $table) {
             $table->id();
             $table->string('nombre', 100)->nullable();
@@ -205,7 +208,7 @@ return new class extends Migration
         });
 
         Schema::create('pagos', function (Blueprint $table) {
-            $table->id(); // id_pago
+            $table->id();
             $table->foreignId('estudiante_id')->constrained('estudiantes')->cascadeOnDelete();
             $table->foreignId('soporte_id')->nullable()->constrained('soportes')->restrictOnDelete();
             $table->integer('codigo_pago')->nullable();
@@ -215,36 +218,57 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 6. PRERREQUISITOS ENTRE ASIGNATURAS
+        // ==========================================
+        // 6. PRERREQUISITOS
+        // ==========================================
         Schema::create('prerequisitos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('asignatura_id')->constrained('asignaturas')->cascadeOnDelete();
             $table->foreignId('requisito_id')->constrained('asignaturas')->cascadeOnDelete();
             $table->timestamps();
-
             $table->unique(['asignatura_id', 'requisito_id']);
         });
 
-        // 7. MATRICULA CON NOTAS
+        // ==========================================
+        // 7. MATRICULA (CABECERA - ESTRUCTURA NUEVA)
+        // ==========================================
         Schema::create('matriculas', function (Blueprint $table) {
             $table->id();
-            $table->integer('id_tramite')->nullable();
             $table->foreignId('estudiante_id')->constrained('estudiantes')->cascadeOnDelete();
-            $table->foreignId('asignatura_seccion_id')->constrained('asignatura_seccions')->restrictOnDelete();
-            $table->integer('repeticiones')->nullable();
-            $table->string('turno', 50)->nullable();
-            $table->date('fecha_matricula')->nullable();
-
-            // Campos extra para notas / estado
-            $table->decimal('nota_final', 4, 2)->nullable();
-            $table->enum('estado_curso', ['en_curso', 'aprobado', 'desaprobado', 'retirado'])
-                  ->default('en_curso');
-
+            $table->foreignId('periodo_id')->constrained('periodo_academicos')->restrictOnDelete();
+            
+            $table->string('codigo_matricula', 30)->unique()->nullable(); // Ej: 20251-20250050
+            $table->integer('id_tramite')->nullable(); 
+            $table->dateTime('fecha_matricula');
+            $table->enum('estado', ['prematrícula', 'matriculado', 'observado', 'anulado'])->default('matriculado');
+            
             $table->timestamps();
 
-            $table->unique(['estudiante_id', 'asignatura_seccion_id']);
+            // Regla: Un estudiante solo puede tener UNA ficha de matrícula por periodo
+            $table->unique(['estudiante_id', 'periodo_id']);
         });
 
+        // ==========================================
+        // 8. DETALLE MATRICULA (LOS CURSOS INSCRITOS)
+        // ==========================================
+        Schema::create('detalle_matriculas', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('matricula_id')->constrained('matriculas')->cascadeOnDelete();
+            $table->foreignId('asignatura_seccion_id')->constrained('asignatura_seccions')->restrictOnDelete();
+            
+            $table->decimal('nota_final', 4, 2)->nullable();
+            $table->enum('estado_curso', ['en_curso', 'aprobado', 'desaprobado', 'retirado', 'sin_nota'])->default('en_curso');
+            $table->integer('vez_cursado')->default(1); // 1=Regular, 2=Segunda, 3=Tercera
+            
+            $table->timestamps();
+
+            // Regla: No duplicar el curso en la misma ficha. Usamos nombre corto.
+            $table->unique(['matricula_id', 'asignatura_seccion_id'], 'uniq_mat_det_sec');
+        });
+
+        // ==========================================
+        // 9. TABLAS DE SISTEMA
+        // ==========================================
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->foreignId('user_id')->nullable()->index();
@@ -259,11 +283,12 @@ return new class extends Migration
             $table->string('token');
             $table->timestamp('created_at')->nullable();
         });
-
     }
 
     public function down(): void
     {
+        // Borramos en orden inverso para respetar FKs
+        Schema::dropIfExists('detalle_matriculas');
         Schema::dropIfExists('matriculas');
         Schema::dropIfExists('prerequisitos');
         Schema::dropIfExists('pagos');
@@ -285,5 +310,7 @@ return new class extends Migration
         Schema::dropIfExists('carreras');
         Schema::dropIfExists('escuelas');
         Schema::dropIfExists('facultades');
+        Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
     }
 };

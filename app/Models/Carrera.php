@@ -14,7 +14,7 @@ class Carrera extends Model
     protected $fillable = [
         'id_escuela',
         'nombre',
-        'codigo_interno', // ⭐ nuevo campo
+        'codigo_interno', 
     ];
 
     public function escuela()

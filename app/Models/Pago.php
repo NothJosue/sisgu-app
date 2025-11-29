@@ -9,7 +9,7 @@ class Pago extends Model
 {
     use HasFactory;
 
-    protected $table = 'pago';
+    protected $table = 'pagos';
 
     protected $primaryKey = 'id_pago';
 
@@ -29,6 +29,6 @@ class Pago extends Model
 
     public function soporte()
     {
-        return $this->belongsTo(Soporte::class, 'id_soporte');
+        return $this->belongsTo(Soportes::class, 'id_soporte');
     }
 }

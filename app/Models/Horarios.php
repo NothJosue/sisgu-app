@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Horario extends Model
+class Horarios extends Model
 {
     use HasFactory;
 
@@ -29,7 +29,7 @@ class Horario extends Model
 
     public function bloque()
     {
-        return $this->belongsTo(BloqueHorario::class, 'ID_Bloque');
+        return $this->belongsTo(BloquesHorarios::class, 'ID_Bloque');
     }
 
     public function aula()
