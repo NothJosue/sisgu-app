@@ -5,8 +5,8 @@
     <!--begin::Copyright-->
     <strong>
         Copyright &copy; 2014-2025&nbsp;
-        <a href="https://adminlte.io" class="text-decoration-none">AdminLTE.io</a>.
+        <a href="https://SISGU.unfv.pe" class="text-decoration-none">UNFV - FIEI</a>.
     </strong>
-    All rights reserved.
+    Sistemas de Gestión Universitaria. 
     <!--end::Copyright-->
 </footer>

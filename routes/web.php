@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\MatriculaController; // <--- AGREGADO
 use App\Models\Estudiante;
 use App\Models\Profesor;
 
@@ -12,14 +13,21 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->group(function () {
 
-    // ADMIN (Usamos 'rol:Admin')
+    // --- GRUPO ADMINISTRADOR ---
     Route::prefix('admin')->middleware('rol:Admin')->group(function () {
+        
+        // Dashboard Principal
         Route::get('/dashboard', function () {
-            return view('layout.admin');
+            // Retornamos la vista 'dashboard' que contiene los gráficos y extiende layout.admin
+            return view('dashboard'); 
         })->name('admin.dashboard');
+
+        // Rutas de Matrícula (Protegidas por Admin)
+        Route::get('/matriculas', [MatriculaController::class, 'index'])->name('admin.matriculas.index');
+        Route::post('/matriculas', [MatriculaController::class, 'store'])->name('admin.matriculas.store');
     });
 
-    // ESTUDIANTE (Usamos 'rol:Estudiante')
+    // --- GRUPO ESTUDIANTE ---
     Route::prefix('estudiante')->middleware('rol:Estudiante')->group(function () {
         Route::get('/dashboard', function () {
             $estudiante = Estudiante::where('usuario_id', Auth::id())->first();
@@ -28,7 +36,7 @@ Route::middleware('auth')->group(function () {
         })->name('estudiante.dashboard');
     });
 
-    // PROFESOR (Usamos 'rol:Profesor')
+    // --- GRUPO PROFESOR ---
     Route::prefix('profesor')->middleware('rol:Profesor')->group(function () {
         Route::get('/dashboard', function () {
             $profesor = Profesor::where('usuario_id', Auth::id())->first();
