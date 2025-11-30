@@ -1,4 +1,5 @@
-@extends('layout.admin')
+@extends('layouts.master') {{-- Hereda del master que acabamos de crear --}}
+
 
 @section('content')
 <div class="app-content-header py-6">

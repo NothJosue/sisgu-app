@@ -1,25 +1,29 @@
-@extends('layout.admin')
+@extends('layouts.master') {{-- Hereda del master que acabamos de crear --}}
 
-@section('content')
-<div class="container-fluid">
-    <div class="card card-success">
-        <div class="card-header">
-            <h3 class="card-title">Bienvenido Estudiante</h3>
+@section('title', 'Panel Estudiante') {{-- Cambia el título de la pestaña --}}
+
+@section('content_header')
+    <div class="row">
+        <div class="col-sm-6">
+            <h3 class="mb-0">Resumen Académico</h3>
         </div>
-        <div class="card-body">
-            <h1>Hola, {{ $estudiante->nombres }} {{ $estudiante->apellidos }}</h1>
-            <p>Tu código de estudiante es: 
-                <strong>{{ $estudiante->codigo_universitario }}</strong>
-            </p>
-            <p>Tu carrera es: 
-                <strong>{{ $estudiante->carrera->nombre ?? 'Sin carrera asignada' }}</strong>
-            </p>
-
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="btn btn-danger">Cerrar Sesión</button>
-            </form>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-end">
+                <li class="breadcrumb-item"><a href="#">Inicio</a></li>
+                <li class="breadcrumb-item active">Panel</li>
+            </ol>
         </div>
     </div>
-</div>
+@endsection
+
+@section('content')
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    Hola, {{ $estudiante->nombres }}. Bienvenido al SISGU.
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
