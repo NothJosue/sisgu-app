@@ -78,8 +78,7 @@
 
                             {{-- Caso de uso: Matricular / Verificar Matrícula --}}
                             <li class="nav-item">
-                                <a href="#"
-                                    class="nav-link {{ request()->is('*/proceso-matricula') ? 'active text-[#FF7F00]' : '' }}">
+                                <a href="{{ route('estudiante.matricula.regular') }}" class="nav-link {{ request()->routeIs('estudiante.matricula.regular') ? 'active text-[#FF7F00]' : '' }}">
                                     <i class="nav-icon bi bi-circle text-xs"></i>
                                     <p>Matrícula Regular</p>
                                 </a>
