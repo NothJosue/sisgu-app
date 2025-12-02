@@ -12,10 +12,10 @@ class Profesor extends Model
     protected $table = 'profesores';
 
     protected $fillable = [
-        'id_usuario',
+        'usuario_id',
         'nombres',
         'apellidos',
-        'DNI',
+        'dni',
         'correo_personal',
         'correo_institucional',
         'telefono',
@@ -24,11 +24,11 @@ class Profesor extends Model
 
     public function usuario()
     {
-        return $this->belongsTo(User::class, 'id_usuario');
+        return $this->belongsTo(User::class, 'usuario_id');
     }
 
     public function detalles()
     {
-        return $this->hasOne(DetallesProfesor::class, 'id_profesor');
+        return $this->hasOne(DetallesProfesor::class, 'profesor_id');
     }
 }
