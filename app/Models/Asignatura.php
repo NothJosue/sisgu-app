@@ -19,6 +19,10 @@ class Asignatura extends Model
         'creditos', 
     ];
 
+    public function secciones()
+    {
+        return $this->hasMany(AsignaturaSeccion::class, 'asignatura_id');
+    }
     public function mallas()
     {
         return $this->hasMany(MallaCurricular::class);

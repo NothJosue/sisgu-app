@@ -15,9 +15,9 @@ class AsignaturaSeccion extends Model
         'asignatura_id',  
         'profesor_id',    
         'periodo_id',     
-        'nombre_seccion', 
+        'nombre_seccion', // Ej: "A", "B"
         'cupos',          
-        'modalidad',     
+        'modalidad',      // "Presencial", "Virtual"
     ];
 
     public function asignatura()
@@ -40,8 +40,8 @@ class AsignaturaSeccion extends Model
         return $this->hasMany(Horarios::class, 'asignatura_seccion_id');
     }
 
-    public function matriculas()
+    public function detallesMatricula()
     {
-        return $this->hasMany(Matricula::class, 'asignatura_seccion_id');
+        return $this->hasMany(DetalleMatricula::class, 'asignatura_seccion_id');
     }
 }
