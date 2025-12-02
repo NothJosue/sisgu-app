@@ -151,14 +151,6 @@ return new class extends Migration {
             $table->unique(['carrera_id', 'asignatura_id']);
         });
 
-
-        Schema::create('prerrequisitos', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('asignatura_id')->constrained('asignaturas')->onDelete('cascade');
-            $table->foreignId('requisito_id')->constrained('asignaturas')->onDelete('cascade');
-            $table->unique(['asignatura_id', 'requisito_id']);
-        });
-
         Schema::create('bloques_horarios', function (Blueprint $table) {
             $table->id();
             $table->time('hora_inicio');
@@ -205,51 +197,45 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        Schema::create('pagos', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('estudiante_id')->constrained('estudiantes')->cascadeOnDelete();
-            $table->foreignId('soporte_id')->nullable()->constrained('soportes')->restrictOnDelete();
-            $table->integer('codigo_pago')->nullable();
-            $table->integer('codigo_banco')->nullable();
-            $table->decimal('monto', 10, 2)->nullable();
-            $table->date('fecha_pago')->nullable();
-            $table->timestamps();
-        });
-
+        
         // ==========================================
         // 6. PRERREQUISITOS
         // ==========================================
-        Schema::create('prerequisitos', function (Blueprint $table) {
+        Schema::create('prerrequisitos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('asignatura_id')->constrained('asignaturas')->cascadeOnDelete();
-            $table->foreignId('requisito_id')->constrained('asignaturas')->cascadeOnDelete();
-            $table->timestamps();
+            $table->foreignId('asignatura_id')->constrained('asignaturas')->onDelete('cascade');
+            $table->foreignId('requisito_id')->constrained('asignaturas')->onDelete('cascade');
             $table->unique(['asignatura_id', 'requisito_id']);
         });
 
         // ==========================================
-        // 7. MATRICULA (CABECERA - ESTRUCTURA NUEVA)
+        // 7. MATRICULA Y PAGOS (CABECERA - ESTRUCTURA NUEVA)
         // ==========================================
-        Schema::create('matriculas', function (Blueprint $table) {
+         Schema::create('matriculas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('estudiante_id')->constrained('estudiantes')->cascadeOnDelete();
             $table->foreignId('periodo_id')->constrained('periodo_academicos')->restrictOnDelete();
-
-            $table->foreignId('pago_id')
-                ->nullable()
-                ->constrained('pagos')
-                ->nullOnDelete();
-
-            $table->string('codigo_matricula', 30)->unique()->nullable(); // Ej: 20251-20250050
-            $table->integer('id_tramite')->nullable();
+            $table->string('codigo_matricula', 30)->unique()->nullable();
             $table->dateTime('fecha_matricula');
             $table->enum('estado', ['prematrícula', 'matriculado', 'observado', 'anulado'])->default('matriculado');
-
             $table->timestamps();
-
-            // Regla: Un estudiante solo puede tener UNA ficha de matrícula por periodo
             $table->unique(['estudiante_id', 'periodo_id']);
         });
+
+        Schema::create('pagos', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('estudiante_id')->constrained('estudiantes')->cascadeOnDelete();
+            $table->foreignId('matricula_id')->nullable()->constrained('matriculas')->cascadeOnDelete();
+            $table->string('codigo_operacion', 50);
+            $table->enum('entidad_financiera', ['Banco de Comercio', 'BCP', 'Yape', 'Interbank']);
+            $table->decimal('monto', 10, 2);
+            $table->date('fecha_pago');
+            $table->string('ruta_imagen', 255);
+            $table->enum('tipo_voucher', ['Boleta 1', 'Boleta 2'])->default('Boleta 1');
+            $table->enum('estado', ['Pendiente', 'Validado', 'Rechazado'])->default('Pendiente');
+            $table->timestamps();
+        });
+
 
         // ==========================================
         // 8. DETALLE MATRICULA (LOS CURSOS INSCRITOS)
@@ -258,14 +244,10 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('matricula_id')->constrained('matriculas')->cascadeOnDelete();
             $table->foreignId('asignatura_seccion_id')->constrained('asignatura_seccions')->restrictOnDelete();
-
             $table->decimal('nota_final', 4, 2)->nullable();
             $table->enum('estado_curso', ['en_curso', 'aprobado', 'desaprobado', 'retirado', 'sin_nota'])->default('en_curso');
             $table->integer('vez_cursado')->default(1); // 1=Regular, 2=Segunda, 3=Tercera
-
             $table->timestamps();
-
-            // Regla: No duplicar el curso en la misma ficha. Usamos nombre corto.
             $table->unique(['matricula_id', 'asignatura_seccion_id'], 'uniq_mat_det_sec');
         });
 
@@ -290,11 +272,10 @@ return new class extends Migration {
 
     public function down(): void
     {
-        // Borramos en orden inverso para respetar FKs
         Schema::dropIfExists('detalle_matriculas');
-        Schema::dropIfExists('matriculas');
-        Schema::dropIfExists('prerequisitos');
         Schema::dropIfExists('pagos');
+        Schema::dropIfExists('matriculas');
+        Schema::dropIfExists('prerrequisitos');
         Schema::dropIfExists('soportes');
         Schema::dropIfExists('horarios');
         Schema::dropIfExists('asignatura_seccions');

@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Prerequisito extends Model
+class Prerrequisito extends Model
 {
     use HasFactory;
 
-    protected $table = 'prerequisitos';
-
+    protected $table = 'prerrequisitos';
+    public $timestamps = false;
     protected $fillable = [
         'asignatura_id', // El curso que se quiere llevar (Ej: Mate 2)
         'requisito_id',  // El curso que se debe haber aprobado antes (Ej: Mate 1)

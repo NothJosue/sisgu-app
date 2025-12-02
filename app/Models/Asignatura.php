@@ -28,7 +28,7 @@ class Asignatura extends Model
     {
         return $this->belongsToMany(
             Asignatura::class,
-            'prerequisitos',
+            'prerrequisitos',
             'asignatura_id',
             'requisito_id'
         );
@@ -38,7 +38,7 @@ class Asignatura extends Model
     {
         return $this->belongsToMany(
             Asignatura::class,
-            'prerequisitos',
+            'prerrequisitos',
             'requisito_id',
             'asignatura_id'
         );

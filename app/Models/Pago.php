@@ -11,24 +11,25 @@ class Pago extends Model
 
     protected $table = 'pagos';
 
-    protected $primaryKey = 'id_pago';
-
     protected $fillable = [
-        'id_estudiante',
-        'id_soporte',
-        'codigo_pago',
-        'codigo_banco',
+        'estudiante_id',
+        'matricula_id',
+        'codigo_operacion',
+        'entidad_financiera',
         'monto',
         'fecha_pago',
+        'ruta_imagen',
+        'tipo_voucher',
+        'estado'
     ];
 
     public function estudiante()
     {
-        return $this->belongsTo(Estudiante::class, 'id_estudiante');
+        return $this->belongsTo(Estudiante::class, 'estudiante_id');
     }
 
-    public function soporte()
+    public function matricula()
     {
-        return $this->belongsTo(Soportes::class, 'id_soporte');
+        return $this->belongsTo(Matricula::class, 'matricula_id');
     }
 }

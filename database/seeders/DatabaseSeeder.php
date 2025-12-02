@@ -28,7 +28,7 @@ use App\Models\AsignaturaSeccion;
 use App\Models\Horarios;
 use App\Models\Matricula;
 use App\Models\DetalleMatricula;
-use App\Models\Prerequisito;
+use App\Models\Prerrequisito;
 
 class DatabaseSeeder extends Seeder
 {
@@ -244,7 +244,7 @@ class DatabaseSeeder extends Seeder
                     
                     // Verificar que el ID del requisito exista en nuestro mapa de IDs creados
                     if (isset($idMap[$reqLegacyId])) {
-                        Prerequisito::create([
+                        Prerrequisito::create([
                             'asignatura_id' => $cursoRealId,       // El curso actual
                             'requisito_id'  => $idMap[$reqLegacyId] // El curso que es requisito
                         ]);

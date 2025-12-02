@@ -15,7 +15,6 @@ class Matricula extends Model
         'estudiante_id',
         'periodo_id',
         'codigo_matricula',
-        'id_tramite',
         'fecha_matricula',
         'estado'
     ];
@@ -28,6 +27,11 @@ class Matricula extends Model
     public function periodo()
     {
         return $this->belongsTo(PeriodoAcademico::class, 'periodo_id');
+    }
+
+    public function pagos()
+    {
+        return $this->hasMany(Pago::class, 'matricula_id');
     }
 
     public function detalles()
