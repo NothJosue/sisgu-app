@@ -3,7 +3,11 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\MatriculaController;
+// Controlador General (Admin)
+use App\Http\Controllers\MatriculaController; 
+// Controlador de Estudiante (El que creamos para los pagos) - Usamos alias para diferenciar
+use App\Http\Controllers\Estudiante\MatriculaController as EstudianteMatriculaController;
+
 use App\Models\User;
 use App\Models\Estudiante;
 use App\Models\Profesor;
@@ -32,7 +36,7 @@ Route::middleware('auth')->group(function () {
             return view('admin.dashboard');
         })->name('admin.dashboard');
 
-        // Gestión de Matrículas
+        // Gestión de Matrículas (Admin)
         Route::get('/matriculas', [MatriculaController::class, 'index'])->name('admin.matriculas.index');
         Route::post('/matriculas', [MatriculaController::class, 'store'])->name('admin.matriculas.store');
     });
@@ -55,12 +59,12 @@ Route::middleware('auth')->group(function () {
             return view('estudiante.dashboard', compact('estudiante'));
         })->name('estudiante.dashboard');
 
+        // RUTAS DE TRÁMITES
         Route::prefix('matricula')->group(function () {
 
-            // 1. Matrícula Regular
-            Route::get('/regular', function () {
-                return view('estudiante.matricula.regular');
-            })->name('estudiante.matricula.regular');
+            // 1. Matrícula Regular (CONECTADO AL CONTROLADOR NUEVO)
+            Route::get('/regular', [EstudianteMatriculaController::class, 'create'])->name('matricula.regular.create');
+            Route::post('/regular', [EstudianteMatriculaController::class, 'store'])->name('matricula.regular.store');
 
             // 2. Reserva de Matrícula
             Route::get('/reserva', function () {
@@ -110,9 +114,6 @@ Route::middleware('auth')->group(function () {
 // =========================================================================
 // 3. 🚧 RUTA DE DESARROLLO (BORRAR EN PRODUCCIÓN) 🚧
 // =========================================================================
-// Esta ruta te permite entrar como cualquier usuario solo sabiendo su ID.
-// Ejemplo: http://localhost:8000/entrar-como/1
-
 Route::get('/entrar-como/{id}', function ($id) {
     $user = User::find($id);
 
@@ -120,10 +121,8 @@ Route::get('/entrar-como/{id}', function ($id) {
         return "El usuario con ID $id no existe.";
     }
 
-    // Logueamos manualmente al usuario
     Auth::login($user);
 
-    // Redirigimos según su rol usando la misma lógica del AuthController
     switch ($user->rol) {
         case 'Admin':
             return redirect()->route('admin.dashboard');

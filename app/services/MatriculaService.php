@@ -2,81 +2,77 @@
 
 namespace App\Services;
 
-use App\Models\Estudiante;
 use App\Models\Matricula;
-use App\Models\DetalleMatricula;
-use App\Models\AsignaturaSeccion;
+use App\Models\Pago;
 use App\Models\PeriodoAcademico;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Exception;
 
 class MatriculaService
 {
-    public function obtenerCursosDisponibles($estudianteId)
+    public function registrarMatriculaRegular($estudiante, array $data)
     {
-        $periodoActual = PeriodoAcademico::latest('id')->first();
-        if (!$periodoActual) throw new Exception("No hay periodo activo.");
+        $periodo = PeriodoAcademico::where('codigo', '2025-1')->first();
+        
+        if (!$periodo) {
+            throw new Exception("No hay un periodo académico activo.");
+        }
 
-        $secciones = AsignaturaSeccion::where('periodo_id', $periodoActual->id)
-            ->with(['asignatura', 'profesor', 'horarios'])
-            ->get();
+        // 2. Verificar si ya está matriculado
+        $existe = Matricula::where('estudiante_id', $estudiante->id)
+                           ->where('periodo_id', $periodo->id)
+                           ->exists();
 
-        return [
-            'periodo' => $periodoActual,
-            'secciones_disponibles' => $secciones
-        ];
-    }
+        if ($existe) {
+            throw new Exception("Ya tienes una matrícula registrada para este periodo.");
+        }
 
-    public function registrarMatricula($estudianteId, array $seccionesIds)
-    {
-        return DB::transaction(function () use ($estudianteId, $seccionesIds) {
+        // 3. Iniciar Transacción (Todo o Nada)
+        return DB::transaction(function () use ($estudiante, $periodo, $data) {
             
-            $estudiante = Estudiante::findOrFail($estudianteId);
-            $periodoActual = PeriodoAcademico::latest('id')->first(); 
+            // A. Crear Cabecera de Matrícula
+            $matricula = Matricula::create([
+                'estudiante_id'    => $estudiante->id,
+                'periodo_id'       => $periodo->id,
+                'codigo_matricula' => $periodo->codigo . '-' . $estudiante->codigo_universitario,
+                'fecha_matricula'  => now(),
+                'estado'           => 'prematrícula', // Estado inicial antes de validación
+            ]);
 
-            if (!$periodoActual) throw new Exception("No hay periodo activo.");
+            // B. Procesar Boleta 1 (Obligatoria)
+            $ruta1 = $data['boleta1_foto']->store('pagos/' . $periodo->codigo, 'public');
 
-            // 1. Crear o Recuperar la CABECERA
-            $matricula = Matricula::firstOrCreate(
-                [
-                    'estudiante_id' => $estudianteId,
-                    'periodo_id' => $periodoActual->id
-                ],
-                [
-                    'codigo_matricula' => $periodoActual->codigo . '-' . $estudiante->codigo_universitario,
-                    'id_tramite' => rand(10000, 99999),
-                    'fecha_matricula' => now(),
-                    'estado' => 'matriculado'
-                ]
-            );
+            Pago::create([
+                'estudiante_id'      => $estudiante->id,
+                'matricula_id'       => $matricula->id,
+                'entidad_financiera' => $data['boleta1_banco'],
+                'codigo_operacion'   => $data['boleta1_codigo'],
+                'monto'              => $data['boleta1_monto'],
+                'fecha_pago'         => $data['boleta1_fecha'],
+                'ruta_imagen'        => $ruta1,
+                'tipo_voucher'       => 'Boleta 1',
+                'estado'             => 'Pendiente'
+            ]);
 
-            $detallesCreados = [];
+            // C. Procesar Boleta 2 (Opcional)
+            if (isset($data['boleta2_foto']) && $data['boleta2_foto']) {
+                $ruta2 = $data['boleta2_foto']->store('pagos/' . $periodo->codigo, 'public');
 
-            foreach ($seccionesIds as $seccionId) {
-                // 2. Validar si ya tiene este curso específico inscrito
-                $existe = DetalleMatricula::where('matricula_id', $matricula->id)
-                    ->where('asignatura_seccion_id', $seccionId)
-                    ->exists();
-
-                if ($existe) continue;
-
-                // 3. Crear el DETALLE
-                $detalle = DetalleMatricula::create([
-                    'matricula_id' => $matricula->id,
-                    'asignatura_seccion_id' => $seccionId,
-                    'estado_curso' => 'en_curso',
-                    'vez_cursado' => 1, 
-                    'nota_final' => null
+                Pago::create([
+                    'estudiante_id'      => $estudiante->id,
+                    'matricula_id'       => $matricula->id,
+                    'entidad_financiera' => $data['boleta2_banco'],
+                    'codigo_operacion'   => $data['boleta2_codigo'],
+                    'monto'              => $data['boleta2_monto'],
+                    'fecha_pago'         => $data['boleta2_fecha'],
+                    'ruta_imagen'        => $ruta2,
+                    'tipo_voucher'       => 'Boleta 2',
+                    'estado'             => 'Pendiente'
                 ]);
-
-                $detallesCreados[] = $detalle;
             }
 
-            return [
-                'matricula_id' => $matricula->id,
-                'codigo' => $matricula->codigo_matricula,
-                'cursos_inscritos' => $detallesCreados
-            ];
+            return $matricula;
         });
     }
 }
