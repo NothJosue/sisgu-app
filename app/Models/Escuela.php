@@ -10,20 +10,21 @@ class Escuela extends Model
     use HasFactory;
 
     protected $table = 'escuelas';
+    public $timestamps = false;
 
     protected $fillable = [
-        'id_facultad',
+        'facultad_id',
         'nombre',
         'codigo_interno',
     ];
 
     public function facultad()
     {
-        return $this->belongsTo(Facultad::class, 'id_facultad');
+        return $this->belongsTo(Facultad::class);
     }
 
     public function carreras()
     {
-        return $this->hasMany(Carrera::class, 'id_escuela');
+        return $this->hasMany(Carrera::class);
     }
 }

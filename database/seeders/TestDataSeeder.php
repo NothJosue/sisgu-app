@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Hash;
 
 class TestDataSeeder extends Seeder
 {
-    public function run(): void
+    /* public function run(): void
     {
         // 1. Buscamos el ID de la carrera automáticamente para no equivocarnos
         $carreraSistemas = Carrera::where('nombre', 'Ingeniería Informática')->first();
@@ -24,7 +24,7 @@ class TestDataSeeder extends Seeder
         // 2. Crear Usuario
         $user = User::create([
             'username' => '2022015428',
-            'password' => Hash::make('123456'), // Contraseña: password
+            'password' => Hash::make('2022015428'),
             'rol' => 'Estudiante',
             'estado' => 'Activo'
         ]);
@@ -32,16 +32,13 @@ class TestDataSeeder extends Seeder
         // 3. Crear Estudiante vinculado
         Estudiante::create([
             'usuario_id'        => $user->id,
-            'carrera_id'        => $carreraSistemas->id, // Usamos el ID que encontramos arriba
+            'carrera_id'        => $carreraSistemas->id,
             'codigo_estudiante' => '2022015428',
             'nombres'           => 'Josue',
             'apellidos'         => 'Albarracin Rivera',
             'dni'               => '72389816',
             'estado'            => 'Activo',
-            
-            // Generamos el código basado en tu lógica (Fac 13 + Carrera 2)
-            // Asumiendo que definiste la relación en tus modelos
             'codigo_programa'   => '130200' 
         ]);
-    }
+    } */
 }

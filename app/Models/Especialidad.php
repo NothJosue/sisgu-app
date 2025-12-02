@@ -11,8 +11,9 @@ class Especialidad extends Model
 
     protected $table = 'especialidades';
 
+    public $timestamps = false;
     protected $fillable = [
-        'id_carrera',
+        'carrera_id',
         'nombre',
         'codigo_interno',
         'estado',
@@ -20,6 +21,6 @@ class Especialidad extends Model
 
     public function carrera()
     {
-        return $this->belongsTo(Carrera::class, 'id_carrera');
+        return $this->belongsTo(Carrera::class);
     }
 }

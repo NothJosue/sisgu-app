@@ -10,6 +10,7 @@ class Edificio extends Model
     use HasFactory;
 
     protected $table = 'edificios';
+    public $timestamps = false;
 
     protected $fillable = [
         'facultad_id',

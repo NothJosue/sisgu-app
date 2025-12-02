@@ -12,8 +12,8 @@ class BloquesHorarios extends Model
     protected $table = 'bloques_horarios';
 
     protected $fillable = [
-        'Hora_Inicio',
-        'Hora_Fin',
+        'hora_inicio',
+        'hora_fin',
     ];
 
     public function horarios()

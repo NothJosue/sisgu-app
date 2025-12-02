@@ -10,22 +10,23 @@ class MallaCurricular extends Model
     use HasFactory;
 
     protected $table = 'malla_curricular';
+    public $timestamps = false;
 
     protected $fillable = [
-        'id_asignatura',
-        'id_carrera',
+        'asignatura_id',
+        'carrera_id',
         'semestre',
-        'asig_oblig',
-        'estado',
+        'tipo_curso',
+        'activo',
     ];
 
     public function asignatura()
     {
-        return $this->belongsTo(Asignatura::class, 'id_asignatura');
+        return $this->belongsTo(Asignatura::class);
     }
 
     public function carrera()
     {
-        return $this->belongsTo(Carrera::class, 'id_carrera');
+        return $this->belongsTo(Carrera::class);
     }
 }

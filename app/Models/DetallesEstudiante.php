@@ -12,7 +12,7 @@ class DetallesEstudiante extends Model
     protected $table = 'detalles_estudiantes';
 
     protected $fillable = [
-        'id_estudiante',
+        'estudiante_id',
         'estado_matricula',
         'fecha_ingreso',
         'promedio_general',
@@ -21,6 +21,6 @@ class DetallesEstudiante extends Model
 
     public function estudiante()
     {
-        return $this->belongsTo(Estudiante::class, 'id_estudiante');
+        return $this->belongsTo(Estudiante::class);
     }
 }

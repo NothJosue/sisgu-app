@@ -12,19 +12,18 @@ class Asignatura extends Model
 
     protected $table = 'asignaturas';
 
+    public $timestamps = false;
     protected $fillable = [
         'codigo_asignatura', 
         'nombre', 
         'creditos', 
-        'asig_prerequi'
     ];
 
     public function mallas()
     {
-        return $this->hasMany(MallaCurricular::class, 'asignatura_id');
+        return $this->hasMany(MallaCurricular::class);
     }
 
-    // Cursos que esta asignatura requiere
     public function prerequisitos(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -35,7 +34,6 @@ class Asignatura extends Model
         );
     }
 
-    // Cursos para los que esta asignatura es requisito
     public function esPrerequisitoDe(): BelongsToMany
     {
         return $this->belongsToMany(

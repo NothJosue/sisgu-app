@@ -18,7 +18,7 @@ class AuthController extends Controller
             return $this->redirectPorRol(Auth::user());
         }
 
-        return view('login');
+        return view('auth.login');
     }
 
     /**

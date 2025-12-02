@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     public function up(): void
     {
         // ==========================================
@@ -13,26 +12,23 @@ return new class extends Migration
         // ==========================================
         Schema::create('facultades', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre', 50)->unique();
+            $table->string('nombre', 100)->unique();
             $table->string('codigo_interno', 2)->unique();
             $table->string('direccion', 100)->nullable();
-            $table->timestamps();
         });
 
         Schema::create('escuelas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('facultad_id')->constrained('facultades');
             $table->string('nombre', 100);
-            $table->string('codigo_interno', 2);
-            $table->timestamps();
+            $table->string('codigo_interno', 3);
         });
 
         Schema::create('carreras', function (Blueprint $table) {
             $table->id();
             $table->foreignId('escuela_id')->constrained('escuelas');
             $table->string('nombre', 100)->unique();
-            $table->string('codigo_interno', 2);
-            $table->timestamps();
+            $table->string('codigo_interno', 3);
             $table->unique(['escuela_id', 'codigo_interno']);
         });
 
@@ -42,7 +38,6 @@ return new class extends Migration
             $table->string('nombre', 100)->unique();
             $table->string('codigo_interno', 2);
             $table->string('estado', 20)->nullable();
-            $table->timestamps();
         });
 
         // ==========================================
@@ -53,7 +48,6 @@ return new class extends Migration
             $table->foreignId('facultad_id')->nullable()->constrained('facultades');
             $table->string('nombre', 50);
             $table->string('direccion', 100)->nullable();
-            $table->timestamps();
         });
 
         Schema::create('aulas', function (Blueprint $table) {
@@ -65,7 +59,6 @@ return new class extends Migration
             $table->integer('capacidad')->nullable();
             $table->integer('piso')->nullable();
             $table->string('estado', 20)->nullable();
-            $table->timestamps();
         });
 
         // ==========================================
@@ -143,22 +136,27 @@ return new class extends Migration
 
         Schema::create('asignaturas', function (Blueprint $table) {
             $table->id();
-            $table->string('codigo_asignatura', 12)->unique()->nullable();
-            $table->string('nombre', 30);
-            $table->integer('creditos')->nullable();
-            $table->string('asig_prerequi', 8)->nullable();
-            $table->timestamps();
+            $table->string('codigo_asignatura', 12)->unique();
+            $table->string('nombre', 150);
+            $table->integer('creditos');
         });
 
         Schema::create('malla_curricular', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('asignatura_id')->constrained('asignaturas');
-            $table->foreignId('carrera_id')->constrained('carreras');
-            $table->integer('semestre')->nullable();
-            $table->string('asig_oblig', 20)->nullable();
-            $table->string('estado', 20)->nullable();
-            $table->timestamps();
+            $table->foreignId('asignatura_id')->constrained('asignaturas')->onDelete('cascade');
+            $table->foreignId('carrera_id')->constrained('carreras')->onDelete('cascade');
+            $table->tinyInteger('semestre');
+            $table->enum('tipo_curso', ['Obligatorio', 'Electivo'])->default('Obligatorio');
+            $table->boolean('activo')->default(true);
             $table->unique(['carrera_id', 'asignatura_id']);
+        });
+
+
+        Schema::create('prerrequisitos', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('asignatura_id')->constrained('asignaturas')->onDelete('cascade');
+            $table->foreignId('requisito_id')->constrained('asignaturas')->onDelete('cascade');
+            $table->unique(['asignatura_id', 'requisito_id']);
         });
 
         Schema::create('bloques_horarios', function (Blueprint $table) {
@@ -236,17 +234,17 @@ return new class extends Migration
             $table->id();
             $table->foreignId('estudiante_id')->constrained('estudiantes')->cascadeOnDelete();
             $table->foreignId('periodo_id')->constrained('periodo_academicos')->restrictOnDelete();
-            
+
             $table->foreignId('pago_id')
                 ->nullable()
                 ->constrained('pagos')
                 ->nullOnDelete();
 
             $table->string('codigo_matricula', 30)->unique()->nullable(); // Ej: 20251-20250050
-            $table->integer('id_tramite')->nullable(); 
+            $table->integer('id_tramite')->nullable();
             $table->dateTime('fecha_matricula');
             $table->enum('estado', ['prematrícula', 'matriculado', 'observado', 'anulado'])->default('matriculado');
-            
+
             $table->timestamps();
 
             // Regla: Un estudiante solo puede tener UNA ficha de matrícula por periodo
@@ -260,11 +258,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('matricula_id')->constrained('matriculas')->cascadeOnDelete();
             $table->foreignId('asignatura_seccion_id')->constrained('asignatura_seccions')->restrictOnDelete();
-            
+
             $table->decimal('nota_final', 4, 2)->nullable();
             $table->enum('estado_curso', ['en_curso', 'aprobado', 'desaprobado', 'retirado', 'sin_nota'])->default('en_curso');
             $table->integer('vez_cursado')->default(1); // 1=Regular, 2=Segunda, 3=Tercera
-            
+
             $table->timestamps();
 
             // Regla: No duplicar el curso en la misma ficha. Usamos nombre corto.

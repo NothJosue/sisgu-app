@@ -10,7 +10,7 @@ class Facultad extends Model
     use HasFactory;
 
     protected $table = 'facultades';
-
+    public $timestamps = false;
     protected $fillable = [
         'nombre',
         'codigo_interno',
@@ -19,6 +19,6 @@ class Facultad extends Model
 
     public function escuelas()
     {
-        return $this->hasMany(Escuela::class, 'id_facultad');
+        return $this->hasMany(Escuela::class);
     }
 }
